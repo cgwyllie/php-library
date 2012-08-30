@@ -4,12 +4,12 @@
 
 require_once(dirname(__FILE__).'/RESTClient.php');
 
-define('SERVER', 'go.urbanairship.com');
-define('BASE_URL', 'https://go.urbanairship.com/api');
-define('DEVICE_TOKEN_URL', BASE_URL . '/device_tokens/');
-define('PUSH_URL', BASE_URL . '/push/');
-define('BROADCAST_URL',  BASE_URL . '/push/broadcast/');
-define('FEEDBACK_URL', BASE_URL . '/device_tokens/feedback/');
+define('UA_SERVER', 'go.urbanairship.com');
+define('UA_BASE_URL', 'https://go.urbanairship.com/api');
+define('UA_DEVICE_TOKEN_URL', UA_BASE_URL . '/device_tokens/');
+define('UA_PUSH_URL', UA_BASE_URL . '/push/');
+define('UA_BROADCAST_URL',  UA_BASE_URL . '/push/broadcast/');
+define('UA_FEEDBACK_URL', UA_BASE_URL . '/device_tokens/feedback/');
 
 
 // Raise when we get a 401 from the server.
@@ -29,7 +29,7 @@ class AirshipDeviceList implements Iterator, Countable {
 
     public function __construct($airship) {
         $this->_airship = $airship;
-        $this->_load_page(DEVICE_TOKEN_URL);
+        $this->_load_page(UA_DEVICE_TOKEN_URL);
         $this->_position = 0;
     }
 
@@ -107,7 +107,7 @@ class Airship {
 
     // Register the device token with UA.
     public function register($device_token, $alias=null, $tags=null, $badge=null) {
-        $url = DEVICE_TOKEN_URL . $device_token;
+        $url = UA_DEVICE_TOKEN_URL . $device_token;
         $payload = array();
         if ($alias != null) {
             $payload['alias'] = $alias;
@@ -135,7 +135,7 @@ class Airship {
 
     // Mark the device token as inactive.
     public function deregister($device_token) {
-        $url = DEVICE_TOKEN_URL . $device_token;
+        $url = UA_DEVICE_TOKEN_URL . $device_token;
         $response = $this->_request($url, 'DELETE', null, null);
         $response_code = $response[0];
         if ($response_code != 204) {
@@ -145,7 +145,7 @@ class Airship {
 
     // Retrieve information about this device token.
     public function get_device_token_info($device_token) {
-        $url = DEVICE_TOKEN_URL . $device_token;
+        $url = UA_DEVICE_TOKEN_URL . $device_token;
         $response = $this->_request($url, 'GET', null, null);
         $response_code = $response[0];
         if ($response_code != 200) {
@@ -171,7 +171,7 @@ class Airship {
             $payload['tags'] = $tags;
         }
         $body = json_encode($payload);
-        $response = $this->_request(PUSH_URL, 'POST', $body, 'application/json');
+        $response = $this->_request(UA_PUSH_URL, 'POST', $body, 'application/json');
         $response_code = $response[0];
         if ($response_code != 200) {
             throw new AirshipFailure($response[1], $response_code);
@@ -184,7 +184,7 @@ class Airship {
             $payload['exclude_tokens'] = $exclude_tokens;
         }
         $body = json_encode($payload);
-        $response = $this->_request(BROADCAST_URL, 'POST', $body, 'application/json');
+        $response = $this->_request(UA_BROADCAST_URL, 'POST', $body, 'application/json');
         $response_code = $response[0];
         if ($response_code != 200) {
             throw new AirshipFailure($response[1], $response_code);
@@ -196,7 +196,7 @@ class Airship {
      Return a list of (device token, timestamp, alias) functions.
      */
     public function feedback($since) {
-        $url = FEEDBACK_URL . '?' . 'since=' . rawurlencode($since->format('c'));
+        $url = UA_FEEDBACK_URL . '?' . 'since=' . rawurlencode($since->format('c'));
         $response = $this->_request($url, 'GET', null, null);
         $response_code = $response[0];
         if ($response_code != 200) {
